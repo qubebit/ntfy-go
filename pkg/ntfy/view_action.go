@@ -11,6 +11,13 @@ type (
 		Link  *url.URL
 		Clear bool
 	}
+
+	viewAction struct {
+		Action string `json:"action"`
+		Label  string `json:"label"`
+		URL    string `json:"url,omitempty"`
+		Clear  bool   `json:"clear,omitempty"`
+	}
 )
 
 func (v *ViewAction) actionType() ActionButtonType {
@@ -18,26 +25,15 @@ func (v *ViewAction) actionType() ActionButtonType {
 }
 
 func (v *ViewAction) MarshalJSON() ([]byte, error) {
-	buf := []byte(`{"action":"view","label":`)
-
-	labelBuf, err := json.Marshal(v.Label)
-	if err != nil {
-		return nil, err
-	}
-	buf = append(buf, labelBuf...)
-
+	url := ""
 	if v.Link != nil {
-		urlBuf, err := json.Marshal(v.Link.String())
-		if err != nil {
-			return nil, err
-		}
-		buf = append(buf, `,"url":`...)
-		buf = append(buf, urlBuf...)
+		url = v.Link.String()
 	}
 
-	if v.Clear {
-		buf = append(buf, `,"clear":true`...)
-	}
-
-	return append(buf, '}'), nil
+	return json.Marshal(&viewAction{
+		Action: "view",
+		Label:  v.Label,
+		URL:    url,
+		Clear:  v.Clear,
+	})
 }
