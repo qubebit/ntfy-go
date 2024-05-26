@@ -14,7 +14,6 @@ type (
 	Client struct {
 		httpClient *http.Client
 		host       *url.URL
-		headers    http.Header
 	}
 
 	PublishOpts struct {
@@ -32,7 +31,6 @@ type (
 
 	Options struct {
 		HTTPClient *http.Client
-		Headers    http.Header
 		Host       string
 	}
 
@@ -44,11 +42,22 @@ var (
 	ErrNoTopic  = errors.New("topic is nil")
 )
 
+func WithHTTPClient(client *http.Client) Option {
+	return func(o *Options) {
+		o.HTTPClient = client
+	}
+}
+
+func WithHost(host string) Option {
+	return func(o *Options) {
+		o.Host = host
+	}
+}
+
 // New creates a ntfy client with the given options
 func New(opts ...Option) (*Client, error) {
 	options := &Options{
 		HTTPClient: http.DefaultClient,
-		Headers:    http.Header{"Content-Type": []string{"application/json"}},
 		Host:       "https://ntfy.sh",
 	}
 
@@ -64,7 +73,6 @@ func New(opts ...Option) (*Client, error) {
 	return &Client{
 		httpClient: options.HTTPClient,
 		host:       host,
-		headers:    options.Headers,
 	}, nil
 }
 
