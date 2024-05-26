@@ -1,15 +1,17 @@
-package client
+package ntfy
 
 import (
 	"encoding/json"
 	"net/url"
 )
 
-type ViewAction struct {
-	Label string
-	Link  *url.URL
-	Clear bool
-}
+type (
+	ViewAction struct {
+		Label string
+		Link  *url.URL
+		Clear bool
+	}
+)
 
 func (v *ViewAction) actionType() ActionButtonType {
 	return View

@@ -1,4 +1,4 @@
-package client
+package ntfy
 
 // Priority is an enum for the message priority
 type Priority int8

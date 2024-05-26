@@ -1,4 +1,4 @@
-package client
+package emojis
 
 // The enormous list of emojis supported by ntfy.sh
 const (

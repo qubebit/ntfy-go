@@ -1,4 +1,4 @@
-package client
+package ntfy
 
 import (
 	"bytes"
@@ -11,12 +11,14 @@ import (
 )
 
 type (
-	// Publisher creates messages for topics
-	Publisher struct {
-		server     *url.URL
+	Client struct {
 		httpClient *http.Client
+		host       *url.URL
+		headers    http.Header
+	}
 
-		Headers http.Header
+	PublishOpts struct {
+		Message *Message
 	}
 
 	PublishResult struct {
@@ -27,6 +29,14 @@ type (
 		Topic   string `json:"topic"`   // :"Server"
 		Message string `json:"message"` // :"triggered"
 	}
+
+	Options struct {
+		HTTPClient *http.Client
+		Headers    http.Header
+		Host       string
+	}
+
+	Option func(*Options)
 )
 
 var (
@@ -34,31 +44,37 @@ var (
 	ErrNoTopic  = errors.New("topic is nil")
 )
 
-// NewPublisher creates a topic publisher for the specified server URL,
-// and uses the supplied HTTP client to resolve the request
-func NewPublisher(server *url.URL, httpClient *http.Client) (*Publisher, error) {
-	if server == nil {
-		return nil, ErrNoServer
-	}
-
-	if httpClient == nil {
-		httpClient = http.DefaultClient
-	}
-
-	return &Publisher{
-		server:     server,
-		httpClient: httpClient,
+// New creates a ntfy client with the given options
+func New(opts ...Option) (*Client, error) {
+	options := &Options{
+		HTTPClient: http.DefaultClient,
 		Headers:    http.Header{"Content-Type": []string{"application/json"}},
-	}, nil
-}
+		Host:       "https://ntfy.sh",
+	}
 
-func (t *Publisher) SendMessage(ctx context.Context, m *Message) (*PublishResult, error) {
-	buf, err := json.Marshal(m)
+	for _, o := range opts {
+		o(options)
+	}
+
+	host, err := url.Parse(options.Host)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.server.String(), bytes.NewReader(buf))
+	return &Client{
+		httpClient: options.HTTPClient,
+		host:       host,
+		headers:    options.Headers,
+	}, nil
+}
+
+func (t *Client) Publish(ctx context.Context, opts *PublishOpts) (*PublishResult, error) {
+	buf, err := json.Marshal(opts.Message)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, t.host.String(), bytes.NewReader(buf))
 	if err != nil {
 		return nil, err
 	}
