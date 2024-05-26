@@ -111,6 +111,7 @@ func New(opts ...Option) (*Client, error) {
 	}, nil
 }
 
+// Publish sends a message to the ntfy server
 func (c *Client) Publish(ctx context.Context, opts *PublishOpts) (*PublishResult, error) {
 	if err := c.validator.Struct(opts); err != nil {
 		return nil, err

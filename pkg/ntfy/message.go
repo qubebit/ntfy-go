@@ -11,7 +11,7 @@ type (
 	// will publish a message to the specified topic. This method does not allow
 	// for attaching files to the notification, but it can post a link to an attachment
 	Message struct {
-		Topic    string         // Target topic name
+		Topic    string         `validate:"required"` // Target topic name
 		Message  string         // Message body; set to triggered if empty or not passed
 		Title    string         // Message title
 		Tags     []string       // List of tags that may or not map to emojis
