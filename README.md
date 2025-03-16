@@ -5,5 +5,5 @@ A [ntfy](https://github.com/binwiederhier/ntfy) client written in Go. Push notif
 ## Installation
 
 ```bash
-go get github.com/backdrop-run/ntfy-go
+go get github.com/qubebit/ntfy-go
 ```
